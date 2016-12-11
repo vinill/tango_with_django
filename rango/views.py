@@ -39,7 +39,7 @@ def show_category(request, category_name_slug):
         context_dict['pages']= None
 
     return render(request, 'rango/category.html', context_dict)
-
+@login_required
 def add_category(request):
     form = CategoryForm()
 
@@ -59,7 +59,7 @@ def add_category(request):
             print(form.errors)
 
     return render(request, 'rango/add_category.html', {'form':form})
-
+@login_required
 def add_page(request, category_name_slug):
     try:
         category = Category.objects.get(slug=category_name_slug)
@@ -115,24 +115,25 @@ def register(request):
             if 'picture' in request.FILES:
                 profile.picture = request.FILES['picture']
     # Now we save the UserProfile model instance.
-                profile.save()
+            profile.save()
     # Update our variable to indicate that the template
     # registration was successful.
-                registered = True
-            else:
+            registered = True
+        else:
     # Invalid form or forms - mistakes or something else?
     # Print problems to the terminal.
-                print(user_form.errors, profile_form.errors)
-        else:
+            print(user_form.errors, profile_form.errors)
+    else:
     # Not a HTTP POST, so we render our form using two ModelForm instances.
     # These forms will be blank, ready for user input.
-            user_form = UserForm()
-            profile_form = UserProfileForm()
+        user_form = UserForm()
+        profile_form = UserProfileForm()
     # Render the template depending on the context.
         return render(request,'rango/register.html',
             {'user_form': user_form,
             'profile_form': profile_form,
-            'registered': registered})
+             'registered': registered})
+
 
 def user_login(request):
     # If the request is a HTTP POST, try to pull out the relevant information
