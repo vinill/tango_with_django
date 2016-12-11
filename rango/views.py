@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
@@ -10,13 +12,38 @@ from rango.models import Category, Page
 
 
 def index(request):
-    context_list = Category.objects.order_by('-likes')[:5]
-    context_pages = Page.objects.order_by('-views')[:10]
-    context_dict={'categories': context_list,
-                  'pages':context_pages}
-    return render(request, 'rango/index.html', context_dict)
+    def visitor_cookie_handler(request, response):
+    # Get the number of visits to the site.
+    # We use the COOKIES.get() function to obtain the visits cookie.
+    # If the cookie exists, the value returned is casted to an integer.
+    # If the cookie doesn't exist, then the default value of 1 is used.
+        visits = int(request.COOKIES.get('visits', '1'))
+        last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+        last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+                                        '%Y-%m-%d %H:%M:%S')
+    # If it's been more than a day since the last visit...
+        if (datetime.now() - last_visit_time).days > 0:
+            visits = visits + 1
+    # update the last visit cookie now that we have updated the count
+            response.set_cookie('last_visit', str(datetime.now()))
+        else:
+    # set the last visit cookie
+            response.set_cookie('last_visit', last_visit_cookie)
+    # Update/set the visits cookie
+        response.set_cookie('visits', visits)
+
+    category_list = Category.objects.order_by('-likes')[:5]
+    page_list = Page.objects.order_by('-views')[:5]
+    context_dict = {'categories': category_list, 'pages': page_list}
+    # Obtain our Response object early so we can add cookie information.
+    response = render(request, 'rango/index.html', context_dict)
+    # Call function to handle the cookies
+    visitor_cookie_handler(request, response)
+    # Return response back to the user, updating any cookies that need changed.
+    return response
 
 def about(request):
+    request.session.delete_test_cookie()
     return HttpResponse("rango says hello in about page!")
 
 def show_category(request, category_name_slug):
@@ -39,7 +66,7 @@ def show_category(request, category_name_slug):
         context_dict['pages']= None
 
     return render(request, 'rango/category.html', context_dict)
-@login_required
+
 def add_category(request):
     form = CategoryForm()
 
@@ -59,7 +86,7 @@ def add_category(request):
             print(form.errors)
 
     return render(request, 'rango/add_category.html', {'form':form})
-@login_required
+
 def add_page(request, category_name_slug):
     try:
         category = Category.objects.get(slug=category_name_slug)
