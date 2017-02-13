@@ -2,3 +2,8 @@
 venv/
 rango/media/
 /search.key
+tango_with_django/__pycache__/
+rango/__pycache__/
+/db.sqlite3
+rango/__pycache__/webhose_search.cpython-35.pyc
+

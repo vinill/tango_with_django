@@ -21,16 +21,17 @@ def run_query(search_terms, size=10):
 
     if not webhose_api_key:
         raise KeyError('Wenhose key not found')
-    root_url = 'http://webhose.io/searh'
+    root_url = 'http://webhose.io/search'
 
     query_string = urllib.parse.quote(search_terms)
 
-    search_url = ('{root}?token={key}&format=json&q={query}'
+    search_url = ('{root_url}?token={key}&format=json&q={query}'
                   '&sort=relevancy&size={size}').format(
         root_url=root_url,
         key=webhose_api_key,
         query=query_string,
         size=size)
+
     results = []
 
     try:

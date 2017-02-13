@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from rango.forms import CategoryForm, PageForm
 from rango.forms import UserForm, UserProfileForm
 from rango.models import Category, Page
-
+from rango.webhose_search import run_query
 
 def index(request):
     # A helper method
@@ -225,3 +225,12 @@ def user_logout(request):
 def restricted(request):
         return HttpResponse("Since you're logged in, you can see this text!")
 
+def search(request):
+    result_list = []
+
+    if request.method =='POST':
+        query = request.POST['query'].strip()
+        if query:
+            result_list = run_query(query)
+
+    return render(request, 'rango/search.html', {'result_list': result_list})
