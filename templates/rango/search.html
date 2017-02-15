@@ -6,17 +6,17 @@
         <h1>Search with Rango</h1>
         <br/>
         <form class="form-inline" id="user_form"
-            method="post" action="{% url 'rango:search' %}">
+            method="post" action="{% url 'rango:show_category' category.slug %}">
         {% csrf_token %}
         <div class="form-group">
             <input class="form-control" type="text" size="50"
-            name="query" value="" id="query" />
+            name="query" value="{{ query }}" id="query" />
         </div>
         <button class="btn btn-primary" type="submit" name="submit"
         value="Search">Search</button>
         </form>
     <div>
-
+        {% if user.authenticated %}
         {% if result_list %}
 
         <h3>Results</h3>
@@ -31,6 +31,7 @@
         </div>
         {% endfor %}
         </div>
+        {% endif %}
         {% endif %}
 </div>
 </div>
